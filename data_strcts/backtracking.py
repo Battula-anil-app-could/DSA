@@ -42,6 +42,38 @@ s = "3214"
 s = list(s)
 #print(get_permutations(s))
 
+def get_secquence(arr, i, index = 0, memo = None, path = None):
+    
+    if memo is None:
+        memo = []
+    if path is None:
+        path = []
+    if i >= len(arr)-1:
+        memo.append(path.copy())
+        return 
+    
+    if index == 0:
+        path.append(arr[i])
+    if path[-1] < arr[i+1]:
+        path.append(arr[i+1])
+        get_secquence(arr, i+1, index+1, memo, path)
+        path.pop() # back tracking
+        get_secquence(arr, i+1, index+1, memo, path)
+    else:
+        get_secquence(arr, i+1, index+1, memo, path)
+    return list(filter(lambda x: len(x) == max(list(map(len, memo))), memo))
+        
+    
+
+
+def get_longest_sub_secquences(arr):
+    
+    for i in range(len(arr)):
+        path = get_secquence(arr, i)
+        print(path)
+
+# arr = [50, 4, 10, 8, 30, 100]
+# get_longest_sub_secquences(arr)
 
 def rat_to_home(table, rows, cols, x,y,count = 0, memo = [], path = []):
     if x == rows or y == cols:
@@ -64,8 +96,35 @@ def rat_to_home(table, rows, cols, x,y,count = 0, memo = [], path = []):
 # table = [list(map(int, input().split())) for i in range(n)] #[[1,0,0,0],[1,1,0,0],[1,1,0,1],[0,1,1,1]]
 #[print(" ".join(i)) for i in rat_to_home(table, n,n,0,0,0)]
 
+def get_minimum_steps(arr, value =0,  index = 0, sub = []):
+    if len(arr) <= 0:
+        return
+    if len(arr) < value:
+        return 
+    value = arr[index]
+    sub_arr = arr[index+1:index + value +1]
+    next_index = arr.index(max(sub_arr))
+    sub.append(value)
+    get_minimum_steps(arr[next_index:], value, 0, memo, path, sub)
+    return sub
 
+# arr = [3,4,2,1,2,3,10,5,1,4]
+# res = get_minimum_steps(arr)
+# print(res)
 
+def brackets_printer(target, path = ""):
+   
+    if len(path) == target:
+        print(path)
+        return
+    if path.count("(") < target // 2:
+        brackets_printer(target, path+"(")
+    if path.count(")") < path.count("("):
+        brackets_printer(target, path+")") 
+
+# num = 2
+
+# res = brackets_printer(num*2)
 
 def rat_to_home_best_way(reffernce, table, rows, cols, x,y,count = 0, memo = [], path = []):
     if x == rows or y == cols:
@@ -105,9 +164,9 @@ def get_sum_of_k(arr, k, path = [], memo={}, index = 0):
     return memo
         
 
-# arr = [10,1,2,7,6,1,5]
-# k = 8
-# [print(i) for i in get_sum_of_k(arr, k).keys()]
+arr = [10,1,2,7,6,1,5]
+k = 8
+[print(i) for i in get_sum_of_k(arr, k).keys()]
 
 
 def palindrome_partitioning(s, index=0, memo=None, path=None):
@@ -209,7 +268,7 @@ def chain_pairs(s):
 s = [[5, 24], [39, 40], [15, 28], [27, 40], [50, 90]]
 s.sort(key = lambda x: x[0])
 res = chain_pairs(s)
-#[print(i) for i in list(filter(lambda x: len(x) == max(list(map(len, res))), res))]
+# [print(i) for i in list(filter(lambda x: len(x) == max(list(map(len, res))), res))]
 
 
 def is_safe(n, row, col, grid):
@@ -304,9 +363,9 @@ def add_operator(s, target, index = 0 , memo = None, path = None):
     path.pop()
     add_operator(s, target, index+1, memo, path)
     return memo
-# s = "1234"
-# n = 6
-# print(add_operator(s, n))
+s = "1234"
+n = 6
+print(add_operator(s, n))
 
 
 def number_of_combinations_with_self(s, target, index = 0 , memo = None, path = None):
@@ -365,8 +424,8 @@ def get_all_subsets(s, index = 0, memo = [], path = []):
     memo.sort(key = lambda x: len(x))
     return memo 
 
-# s = [1,2,3]
-# print(get_all_subsets(s,0, [s]))
+s = [1,2,3]
+print(get_all_subsets(s,0, [s]))
 
 
 
@@ -452,3 +511,97 @@ if result:
     [print(i) for i in result] 
 else:
     print(f"knight not able to tour {n} X {n} chess board")
+
+
+
+def get_matrix(n, table, row = 0, col = 0, memo = None, path = None):
+    if memo is None:
+        memo = []
+    if path is None:
+        path = []
+    if row >= n or col >= n:
+        return memo
+    
+    if table[row][col] == "V":
+        return memo
+    
+    if table[row][col] != "x":
+        if path:
+            if path not in memo:
+                memo.append(path.copy())
+        return memo
+    if table[row][col] == "x":
+        if [row, col] not in path:
+            path.append([row, col])
+            table[row][col] = "V"
+    get_matrix(n, table, row+1, col, memo, path)
+    get_matrix(n, table, row, col+1, memo, path)
+    return memo 
+    
+def get_result(n, table):
+    res = []
+    for row in range(n):
+        for col in range(n):
+            res += get_matrix(n, table, row, col)
+    return res
+
+# o o o o o
+# o x x o o
+# o x x o o
+# o o o x o
+# o o o o o
+    
+n = 5
+table = [input().split() for _ in range(n)]
+res = get_result(n, table)
+print(res)
+res = list(filter(lambda x: len(x) == max(list(map(len, res))), res))
+print(res)
+
+
+
+
+def resu(nums, index = 0,  res = [], memo = []):
+    # ks = nums.copy()
+    # res = []
+    # for i,v in enumerate(nums):
+    #     poped_value = ks.pop(i)
+    #     lls = [poped_value]
+    #     kks = ks.copy()
+    #     for ii,vv in enumerate(ks):
+    #         poped_value1 = kks.pop(ii)
+    #         lls.append(poped_value1)
+    #         for j in kks:
+    #             lls.append(j)
+    #             if sum(lls) == 0:
+    #                 lls.sort()
+    #                 if lls in res:
+    #                     pass 
+    #                 else:
+    #                     res.append(lls.copy())
+    #             lls.remove(j)
+    #         kks.insert(ii, poped_value1)
+    #     ks.insert(i, poped_value)
+    # res = [i for i in res if len(i) == 3]
+    # return res
+    
+    if index >= len(nums):
+        return memo 
+    res.append(nums[index])
+    if len(res) == 3:
+        if sum(res) == 0:
+            res.sort()
+            if res not in memo:
+                memo.append(res.copy())
+    resu(nums, index+1, res, memo)
+    res.remove(nums[index]) # backtracking
+    resu(nums, index+1, res, memo)
+    return memo
+    
+
+
+nums = [-1, 0, 1, 2, -1, -4]
+
+result = resu(nums)
+print(result)
+
